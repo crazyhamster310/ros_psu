@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- continuous-continuous Manipulator -->
 <robot name="eng" xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <!-- Constants for robot dimensions -->
     <xacro:property name="PI" value="3.1415"/>
     <xacro:property name="M_PI" value="3.1415"/>
     <xacro:property name="width" value="0"/>
-    <!-- Square dimensions (width x width) of beams  0.1-->
     <xacro:property name="camera_link" value="0.05"/>
     <xacro:property name="axel_offset" value="0.05"/>
-    <xacro:property name="base_link_size_x" value="2.56"/> <!--was 0.397-->
-    <xacro:property name="base_link_size_y" value="3.85"/>  <!--was 0.1789-->
-    <xacro:property name="base_link_size_z"
-                    value="${2*wheel_radius-ground_clearance}"/>   <!-- old 0.102 is double radius without ground_clearance 0.07683 -->
-    <xacro:property name="big_wheel_radius" value="0.8"/>   <!--was 0.09-->
-    <xacro:property name="small_wheel_radius" value="${big_wheel_radius*0.7}"/>   <!--was 0.09-->
-    <xacro:property name="ground_clearance" value="0.02517"/>   <!--old 0.05 0.02517-->
+    <xacro:property name="base_link_size_x" value="2.56"/>
+    <xacro:property name="base_link_size_y" value="3.85"/>
+    <xacro:property name="base_link_size_z" value="${2*wheel_radius-ground_clearance}"/>
+    <xacro:property name="big_wheel_radius" value="0.8"/>
+    <xacro:property name="small_wheel_radius" value="${big_wheel_radius*0.7}"/>
+    <xacro:property name="ground_clearance" value="0.02517"/>
     <xacro:property name="wheel_length" value="${0.22*scale}"/>
     <xacro:property name="wheel_mass" value="0.1"/>
     <xacro:property name="scale" value="0.1"/>
     <xacro:property name="prefix" value="eng"/>
-    <!-- <xacro:include filename="$(find eng_description)/urdf/eng.gazebo"/> -->
     <xacro:include filename="$(find eng_description)/urdf/materials.xacro"/>
 
-    <xacro:macro name="collision_macro"
-                 params="mesh_name x y z roll pitch yaw scale">
+    <xacro:macro name="collision_macro" params="mesh_name x y z roll pitch yaw scale">
         <collision>
             <origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}"/>
             <geometry>
@@ -32,8 +26,7 @@
         </collision>
     </xacro:macro>
 
-    <xacro:macro name="inertial_macro"
-                 params="x y z roll pitch yaw mass ixx ixy ixz iyy iyz izz">
+    <xacro:macro name="inertial_macro" params="x y z roll pitch yaw mass ixx ixy ixz iyy iyz izz">
         <inertial>
             <origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}"/>
             <mass value="${mass}"/>
@@ -51,8 +44,7 @@
         </visual>
     </xacro:macro>
 
-    <xacro:macro name="link_macro"
-                 params="x y z name_link  mesh_name  mass material scale ixx ixy ixz iyy iyz izz roll:=0 pitch:=0 yaw:=0 ">
+    <xacro:macro name="link_macro" params="x y z name_link  mesh_name  mass material scale ixx ixy ixz iyy iyz izz roll:=0 pitch:=0 yaw:=0 ">
         <link name="${name_link}">
             <xacro:visual_macro mesh_name="${mesh_name}" x="${x}" y="${y}" z="${z}" roll="0" pitch="0" yaw="0"
                                 material="${material}" scale="${scale}"/>
@@ -64,8 +56,7 @@
         </link>
     </xacro:macro>
 
-    <xacro:macro name="joint_macro"
-                 params="joint_name type parent child x y z roll pitch yaw axis">
+    <xacro:macro name="joint_macro" params="joint_name type parent child x y z roll pitch yaw axis">
         <joint name="${joint_name}" type="${type}">
             <parent link="${parent}"/>
             <child link="${child}"/>
@@ -176,7 +167,6 @@
    <xacro:wheel name_link="left_middle_base_link_wheel" x="0" y="${2.75*scale}" z="${-0.25*scale}" roll="0" pitch="${PI*0.5}" yaw="${PI/2}"
                 radius="${big_wheel_radius}" wheel_length="${wheel_length}" mass="${wheel_mass}" parent="base_link"/>
 
-<!-- y=3.4 x=0.3-->
     <!-- FLIPPERS LINK IMAGINARY PSEUDO WHEELS -->
     <xacro:wheel name_link="right_flipper_wheel" x="${0.5*scale}" y="0" z="${3.4*scale}" roll="0" pitch="${PI*0.5}" yaw="${PI}"
                  radius="${small_wheel_radius}" wheel_length="${wheel_length}" mass="${wheel_mass}" parent="right_flipper"/>
@@ -195,8 +185,7 @@
                 <cylinder radius="0.05" length="0.1"/>
             </geometry>
         </collision>
-        <xacro:inertial_macro x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="0.1" 
-                              ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        <xacro:inertial_macro x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="0.1" ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
     </link>
 
     <joint name="lidar_joint" type="fixed">
@@ -207,6 +196,7 @@
 
     <gazebo reference="lidar_link">
         <sensor name="laser" type="gpu_lidar">
+            <gz_frame_id>base_link</gz_frame_id>
             <pose> 0 0 0 0 0 0 </pose>
             <always_on>true</always_on>
             <visualize>true</visualize>
@@ -229,59 +219,48 @@
             </lidar>
         </sensor>
     </gazebo>
-    
-    <gazebo>
-        <plugin
-            filename="ignition-gazebo-diff-drive-system"
-            name="ignition::gazebo::systems::DiffDrive">
-            <left_joint>joint_left_front_base_link_wheel</left_joint>
-            <left_joint>joint_left_rear_base_link_wheel</left_joint>
-            <left_joint>joint_left_middle_base_link_wheel</left_joint>
-            <left_joint>joint_left_flipper_wheel</left_joint>
-            
-            <right_joint>joint_right_front_base_link_wheel</right_joint>
-            <right_joint>joint_right_rear_base_link_wheel</right_joint>
-            <right_joint>joint_right_middle_base_link_wheel</right_joint>
-            <right_joint>joint_right_flipper_wheel</right_joint>
 
-            <wheel_separation>${base_link_size_y * scale}</wheel_separation>
-            <wheel_radius>${big_wheel_radius * scale}</wheel_radius>
-            <topic>/model/eng/cmd_vel</topic>
-            <odom_topic>/model/eng/odometry</odom_topic>
+    <gazebo>
+        <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+            <parameters>$(find eng_description)/config/controllers.yaml</parameters>
         </plugin>
     </gazebo>
 
-    <gazebo>
-        <plugin
-            filename="ignition-gazebo-diff-drive-system"
-            name="ignition::gazebo::systems::DiffDrive">
-            <left_joint>joint_left_flipper_wheel</left_joint>
-            
-            <right_joint>joint_right_flipper_wheel</right_joint>
+    <ros2_control name="IgnitionSystem" type="system">
+        <hardware>
+            <plugin>ign_ros2_control/IgnitionSystem</plugin>
+        </hardware>
 
-            <wheel_separation>${base_link_size_y * scale}</wheel_separation>
-            <wheel_radius>${small_wheel_radius * scale}</wheel_radius>
-            <topic>/model/eng/cmd_vel_small</topic>
-            <odom_topic>/model/eng/odometry_small</odom_topic>
-        </plugin>
-    </gazebo>
+        <xacro:macro name="wheel_interface" params="name">
+            <joint name="joint_${name}">
+                <command_interface name="velocity"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+        </xacro:macro>
 
-    <xacro:macro name="joint_control" params="joint_name">
-        <gazebo>
-            <plugin
-            filename="ignition-gazebo-joint-position-controller-system"
-            name="ignition::gazebo::systems::JointPositionController">
-            <joint_name>${joint_name}</joint_name>
-            <topic>/model/eng/joint/${joint_name}/cmd_pos</topic>
-            <p_gain>1000</p_gain>
-            <i_gain>0.1</i_gain>
-            <d_gain>10</d_gain>
-            </plugin>
-        </gazebo>
-    </xacro:macro>
+        <xacro:wheel_interface name="left_front_base_link_wheel"/>
+        <xacro:wheel_interface name="right_front_base_link_wheel"/>
+        <xacro:wheel_interface name="left_rear_base_link_wheel"/>
+        <xacro:wheel_interface name="right_rear_base_link_wheel"/>
+        <xacro:wheel_interface name="left_middle_base_link_wheel"/>
+        <xacro:wheel_interface name="right_middle_base_link_wheel"/>
+        <xacro:wheel_interface name="left_flipper_wheel"/>
+        <xacro:wheel_interface name="right_flipper_wheel"/>
 
-    <xacro:joint_control joint_name="joint_cronstein"/>
-    <xacro:joint_control joint_name="joint_first_part"/>
-    <xacro:joint_control joint_name="joint_second_part"/>
-    <xacro:joint_control joint_name="joint_head"/>
+        <xacro:macro name="arm_interface" params="name">
+            <joint name="${name}">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+        </xacro:macro>
+
+        <xacro:arm_interface name="joint_right_flipper"/>
+        <xacro:arm_interface name="joint_left_flipper"/>
+        <xacro:arm_interface name="joint_cronstein"/>
+        <xacro:arm_interface name="joint_first_part"/>
+        <xacro:arm_interface name="joint_second_part"/>
+        <xacro:arm_interface name="joint_head"/>
+    </ros2_control>
 </robot>

@@ -5,7 +5,7 @@ project(eng_description)
 find_package(ament_cmake REQUIRED)
 
 # Install directories to the share folder
-install(DIRECTORY launch meshes urdf
+install(DIRECTORY launch meshes config urdf
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()

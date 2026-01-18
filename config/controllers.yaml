@@ -1,16 +1,34 @@
 controller_manager:
   ros__parameters:
     update_rate: 100
-    use_sim_time: true
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
+    base_controller:
+      type: diff_drive_controller/DiffDriveController
+
     arm_controller:
       type: position_controllers/JointGroupPositionController
 
-    base_controller:
-      type: diff_drive_controller/DiffDriveController
+    flipper_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+base_controller:
+  ros__parameters:
+    left_wheel_names: 
+      - joint_left_front_base_link_wheel
+      - joint_left_rear_base_link_wheel
+      - joint_left_middle_base_link_wheel
+    right_wheel_names: 
+      - joint_right_front_base_link_wheel
+      - joint_right_rear_base_link_wheel
+      - joint_right_middle_base_link_wheel
+    
+    wheel_separation: 0.55
+    wheel_radius: 0.08
+    
+    use_stamped_vel: false
 
 arm_controller:
   ros__parameters:
@@ -21,10 +39,10 @@ arm_controller:
       - joint_head
     interface_name: position
 
-base_controller:
+
+flipper_position_controller:
   ros__parameters:
-    left_wheel_names: ["joint_left_front_base_link_wheel", "joint_left_rear_base_link_wheel"]
-    right_wheel_names: ["joint_right_front_base_link_wheel", "joint_right_rear_base_link_wheel"]
-    wheel_separation: 0.55
-    wheel_radius: 0.08
-    use_stamped_vel: false
+    joints:
+      - joint_left_flipper
+      - joint_right_flipper
+    interface_name: position
